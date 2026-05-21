@@ -941,6 +941,11 @@
             fileInput.value = '';
         }
 
+        // Determine API base URL: prefer same-origin, but when served from
+        // file:// (or other static contexts) fall back to local Flask at port 5000.
+        const API_FALLBACK = 'http://127.0.0.1:5000';
+        const apiBase = window.location.protocol === 'file:' ? API_FALLBACK : '';
+
         async function analyzeImage() {
             if (!uploadedImage) return;
 
@@ -960,8 +965,8 @@
             `;
 
             try {
-                // Call Flask backend API
-                const response = await fetch('/api/analyze', {
+                // Call Flask backend API (use fallback when served locally from file://)
+                const response = await fetch(apiBase + '/api/analyze', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
