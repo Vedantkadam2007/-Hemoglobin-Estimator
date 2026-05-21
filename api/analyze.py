@@ -8,7 +8,7 @@ from PIL import Image
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/', methods=['POST'])
 def analyze_image():
     try:
         data = request.json
