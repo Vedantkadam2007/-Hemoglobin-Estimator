@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
 import io
-import numpy as np
-from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +12,14 @@ def analyze_image():
         return jsonify({'message': 'Hemoglobin Estimator API is active'}), 200
 
     try:
+        # Import heavy libraries inside the handler so import-time failures
+        # produce JSON errors instead of an HTML runtime error page.
+        try:
+            import numpy as np
+            from PIL import Image
+        except Exception as imp_err:
+            return jsonify({'error': f'Dependency import failed: {str(imp_err)}'}), 500
+
         data = request.json
         image_data = data.get('image')
 
