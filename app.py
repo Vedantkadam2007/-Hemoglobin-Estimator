@@ -72,20 +72,20 @@ def analyze_image():
             status = 'Low'
             status_color = 'red'
             detected_signs = [
-                {'icon': 'fa-hand-paper', 'label': 'Pale palm detected', 'detected': bool(brightness < 120)},
-                {'icon': 'fa-eye', 'label': 'Pale skin tone observed', 'detected': bool(red_ratio < 0.32)},
-                {'icon': 'fa-tired', 'label': 'Signs of fatigue visible', 'detected': bool(brightness < 110)},
-                {'icon': 'fa-head-side-virus', 'label': 'Possible dizziness indicators', 'detected': bool(red_ratio < 0.30)},
-                {'icon': 'fa-wind', 'label': 'Shortness of breath signs', 'detected': bool(brightness < 100)},
-                {'icon': 'fa-snowflake', 'label': 'Cold hands/feet detected', 'detected': bool(brightness < 115)}
+                {'icon': 'fa-hand-paper', 'label': 'Pale palm detected', 'detected': int(brightness < 120)},
+                {'icon': 'fa-eye', 'label': 'Pale skin tone observed', 'detected': int(red_ratio < 0.32)},
+                {'icon': 'fa-tired', 'label': 'Signs of fatigue visible', 'detected': int(brightness < 110)},
+                {'icon': 'fa-head-side-virus', 'label': 'Possible dizziness indicators', 'detected': int(red_ratio < 0.30)},
+                {'icon': 'fa-wind', 'label': 'Shortness of breath signs', 'detected': int(brightness < 100)},
+                {'icon': 'fa-snowflake', 'label': 'Cold hands/feet detected', 'detected': int(brightness < 115)}
             ]
             hydration_level = 'Low'
             hydration_status = 'Increase water intake immediately'
-            hydration_bar = max(20, min(50, 30 + (brightness - 120) / 2))
+            hydration_bar = int(max(20, min(50, 30 + (brightness - 120) / 2)))
             fatigue_level = 'High'
             fatigue_status = 'Rest and recovery recommended'
-            fatigue_bar = max(60, min(90, 75 + (120 - brightness) / 3))
-            recommend_doctor = True
+            fatigue_bar = int(max(60, min(90, 75 + (120 - brightness) / 3)))
+            recommend_doctor = 1
             doctor_message = 'Your hemoglobin level appears to be below normal. This may indicate anemia or other conditions. We strongly recommend consulting a healthcare professional for proper diagnosis and treatment.'
             recommendations = [
                 'URGENT: Consult a healthcare professional for blood test',
@@ -101,18 +101,18 @@ def analyze_image():
             status = 'High'
             status_color = 'orange'
             detected_signs = [
-                {'icon': 'fa-redo', 'label': 'Ruddy complexion detected', 'detected': bool(red_ratio > 0.36)},
-                {'icon': 'fa-headache', 'label': 'Possible headache indicators', 'detected': bool(red_ratio > 0.38)},
-                {'icon': 'fa-dizzy', 'label': 'Dizziness signs observed', 'detected': bool(brightness > 180)},
-                {'icon': 'fa-lungs', 'label': 'Breathing pattern irregularities', 'detected': bool(red_ratio > 0.40)}
+                {'icon': 'fa-redo', 'label': 'Ruddy complexion detected', 'detected': int(red_ratio > 0.36)},
+                {'icon': 'fa-headache', 'label': 'Possible headache indicators', 'detected': int(red_ratio > 0.38)},
+                {'icon': 'fa-dizzy', 'label': 'Dizziness signs observed', 'detected': int(brightness > 180)},
+                {'icon': 'fa-lungs', 'label': 'Breathing pattern irregularities', 'detected': int(red_ratio > 0.40)}
             ]
             hydration_level = 'Medium'
             hydration_status = 'Maintain good hydration'
-            hydration_bar = max(40, min(70, 50 + (brightness - 150) / 5))
+            hydration_bar = int(max(40, min(70, 50 + (brightness - 150) / 5)))
             fatigue_level = 'Medium'
             fatigue_status = 'Monitor energy levels'
-            fatigue_bar = max(30, min(60, 40 + (150 - brightness) / 5))
-            recommend_doctor = True
+            fatigue_bar = int(max(30, min(60, 40 + (150 - brightness) / 5)))
+            recommend_doctor = 1
             doctor_message = 'Your hemoglobin level appears elevated. This may require medical evaluation to determine the underlying cause.'
             recommendations = [
                 'Consult a healthcare professional for evaluation',
@@ -127,17 +127,17 @@ def analyze_image():
             status = 'Normal'
             status_color = 'green'
             detected_signs = [
-                {'icon': 'fa-smile', 'label': 'Healthy skin tone', 'detected': True},
-                {'icon': 'fa-heart', 'label': 'Good circulation indicators', 'detected': red_ratio > 0.33},
-                {'icon': 'fa-bolt', 'label': 'Normal energy levels', 'detected': brightness > 120}
+                {'icon': 'fa-smile', 'label': 'Healthy skin tone', 'detected': 1},
+                {'icon': 'fa-heart', 'label': 'Good circulation indicators', 'detected': int(red_ratio > 0.33)},
+                {'icon': 'fa-bolt', 'label': 'Normal energy levels', 'detected': int(brightness > 120)}
             ]
             hydration_level = 'Good'
             hydration_status = 'Maintain current hydration'
-            hydration_bar = max(60, min(90, 70 + (brightness - 128) / 10))
+            hydration_bar = int(max(60, min(90, 70 + (brightness - 128) / 10)))
             fatigue_level = 'Low'
             fatigue_status = 'Energy levels appear normal'
-            fatigue_bar = max(10, min(40, 20 + (128 - brightness) / 10))
-            recommend_doctor = False
+            fatigue_bar = int(max(10, min(40, 20 + (128 - brightness) / 10)))
+            recommend_doctor = 0
             doctor_message = ''
             recommendations = [
                 'Maintain balanced diet rich in nutrients',
@@ -151,21 +151,21 @@ def analyze_image():
             ]
         
         return jsonify({
-            'hb_value': hb_value,
-            'confidence': confidence,
+            'hb_value': float(hb_value),
+            'confidence': int(confidence),
             'status': status,
             'status_color': status_color,
             'detected_signs': detected_signs,
             'hydration_level': hydration_level,
             'hydration_status': hydration_status,
-            'hydration_bar': round(hydration_bar, 0),
+            'hydration_bar': hydration_bar,
             'fatigue_level': fatigue_level,
             'fatigue_status': fatigue_status,
-            'fatigue_bar': round(fatigue_bar, 0),
-            'recommend_doctor': recommend_doctor,
+            'fatigue_bar': fatigue_bar,
+            'recommend_doctor': bool(recommend_doctor),
             'doctor_message': doctor_message,
             'recommendations': recommendations,
-            'analysis_time': round(2.0 + (abs(brightness - 128) / 255), 2)
+            'analysis_time': float(round(2.0 + (abs(brightness - 128) / 255), 2))
         })
         
     except Exception as e:
