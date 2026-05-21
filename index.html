@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemoglobin Health Estimator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Glowing effects */
+        .glow {
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        .glow-cyan {
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
+        }
+        
+        .glow-purple {
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-delay {
+            animation: float 6s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Premium card shadow */
+        .card-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Pulse animation */
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-bg-cyan {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        
+        .gradient-bg-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+        }
+        
+        /* Modern gradient */
+        .modern-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #06b6d4 100%);
+        }
+        
+        .modern-gradient-secondary {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+        
+        /* Button hover effects */
+        .btn-glow:hover {
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+    <!-- Header -->
+    <header class="glass-dark text-white py-6 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center glow">
+                        <i class="fas fa-hand-holding-medical text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold gradient-text">Hemoglobin Estimator</h1>
+                        <p class="text-sm text-gray-400">AI-Powered Health Assessment</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-4">
+                    <button onclick="showPage('home')" class="nav-btn px-4 py-2 rounded-lg glass hover:bg-white/10 transition-colors" data-page="home">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </button>
+                    <button onclick="showPage('health-tips')" class="nav-btn px-4 py-2 rounded-lg glass hover:bg-white/10 transition-colors" data-page="health-tips">
+                        <i class="fas fa-heart mr-2"></i>Health Tips
+                    </button>
+                </nav>
+                <div class="hidden md:flex items-center space-x-2 bg-white/20 rounded-lg px-4 py-2">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="text-sm">Estimation Tool Only</span>
+                </div>
+            </div>
+            <!-- Mobile Navigation -->
+            <nav class="md:hidden flex justify-center space-x-4 mt-4">
+                <button onclick="showPage('home')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/20 transition-colors" data-page="home">
+                    <i class="fas fa-home mr-2"></i>Home
+                </button>
+                <button onclick="showPage('health-tips')" class="nav-btn px-4 py-2 rounded-lg hover:bg-white/20 transition-colors" data-page="health-tips">
+                    <i class="fas fa-heart mr-2"></i>Health Tips
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Disclaimer Banner -->
+    <div class="bg-amber-100 border-l-4 border-amber-500 p-4">
+        <div class="container mx-auto px-4">
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-exclamation-triangle text-amber-600 mt-1"></i>
+                <div>
+                    <p class="font-semibold text-amber-800">Important Medical Disclaimer</p>
+                    <p class="text-sm text-amber-700">This tool provides health estimates based on hand image analysis using AI. It is NOT a substitute for professional medical diagnosis, advice, or treatment. Always consult a healthcare professional for accurate medical assessment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Home Page -->
+            <div id="home-page">
+                <!-- Hero Section -->
+                <div class="glass rounded-3xl p-12 mb-8 text-white relative overflow-hidden glow">
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl float"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-indigo-500/20 to-blue-500/20 rounded-full blur-3xl float-delay"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-5xl font-bold mb-4 gradient-text">AI-Powered Hemoglobin Analysis</h2>
+                        <p class="text-gray-300 text-xl mb-8 max-w-2xl">Upload your hand photo for instant, cutting-edge health estimation powered by advanced artificial intelligence.</p>
+                        <div class="flex flex-wrap gap-4">
+                            <div class="glass px-6 py-3 rounded-xl flex items-center glow-cyan">
+                                <i class="fas fa-bolt mr-3 text-cyan-400"></i>
+                                <span class="font-medium">Instant Analysis</span>
+                            </div>
+                            <div class="glass px-6 py-3 rounded-xl flex items-center glow-purple">
+                                <i class="fas fa-shield-alt mr-3 text-purple-400"></i>
+                                <span class="font-medium">Privacy First</span>
+                            </div>
+                            <div class="glass px-6 py-3 rounded-xl flex items-center glow">
+                                <i class="fas fa-check-circle mr-3 text-indigo-400"></i>
+                                <span class="font-medium">Medical Grade</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="glass rounded-3xl card-shadow p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
+                    <div class="gradient-bg-cyan rounded-xl p-3 mr-4 glow-cyan">
+                        <i class="fas fa-camera text-white text-xl"></i>
+                    </div>
+                    Upload Hand Photo
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- File Upload -->
+                    <div class="border-3 border-dashed border-white/20 rounded-2xl p-10 text-center hover:border-cyan-500 hover:bg-white/5 transition-all duration-300 cursor-pointer group" id="dropZone">
+                        <input type="file" id="fileInput" accept="image/*" class="hidden">
+                        <div class="gradient-bg-cyan rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform glow-cyan">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-white"></i>
+                        </div>
+                        <p class="text-white font-semibold mb-2">Drag & drop your hand photo</p>
+                        <p class="text-sm text-gray-400 mb-4">Supports JPG, PNG, WEBP</p>
+                        <button class="gradient-bg-cyan text-white px-8 py-3 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg btn-glow" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open mr-2"></i>Choose File
+                        </button>
+                    </div>
+
+                    <!-- Camera Capture -->
+                    <div class="border-3 border-dashed border-white/20 rounded-2xl p-10 text-center hover:border-purple-500 hover:bg-white/5 transition-all duration-300 group">
+                        <div class="gradient-bg-purple rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform glow-purple">
+                            <i class="fas fa-camera text-4xl text-white"></i>
+                        </div>
+                        <p class="text-white font-semibold mb-2">Capture with camera</p>
+                        <p class="text-sm text-gray-400 mb-4">Ensure good lighting for best results</p>
+                        <button class="gradient-bg-purple text-white px-8 py-3 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg btn-glow" onclick="capturePhoto()">
+                            <i class="fas fa-camera mr-2"></i>Open Camera
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div id="previewSection" class="mt-8 hidden">
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-white flex items-center">
+                            <i class="fas fa-image text-cyan-400 mr-2"></i>
+                            Image Preview
+                        </h3>
+                        <div class="relative inline-block">
+                            <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 glow">
+                                <img id="imagePreview" class="max-h-80 object-cover" alt="Hand preview">
+                            </div>
+                            <button class="absolute top-4 right-4 bg-red-500 text-white w-10 h-10 rounded-full hover:bg-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110" onclick="clearImage()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+                            <button class="gradient-bg text-white px-10 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg btn-glow font-semibold text-lg" onclick="analyzeImage()">
+                                <i class="fas fa-search-plus mr-2"></i>Analyze Image
+                            </button>
+                            <button class="glass border-2 border-white/20 text-white px-10 py-4 rounded-xl hover:bg-white/10 transition-all duration-300 font-semibold text-lg" onclick="clearImage()">
+                                <i class="fas fa-redo mr-2"></i>Choose Different Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="glass rounded-2xl card-shadow p-8">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center text-white">
+                        <i class="fas fa-chart-line text-cyan-400 mr-3"></i>
+                        Analysis Results
+                    </h2>
+
+                    <!-- Hemoglobin Level -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300 font-medium">Estimated Hemoglobin Level</span>
+                            <span id="hbValue" class="text-3xl font-bold gradient-text">-- g/dL</span>
+                        </div>
+                        <div class="w-full bg-white/10 rounded-full h-4">
+                            <div id="hbBar" class="bg-gradient-to-r from-red-500 via-yellow-500 to-cyan-500 h-4 rounded-full transition-all duration-1000 glow" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Low</span>
+                            <span>Normal</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+
+                    <!-- Health Status -->
+                    <div class="grid md:grid-cols-3 gap-4 mb-8">
+                        <div id="statusCard" class="glass rounded-xl p-6 text-center glow">
+                            <i id="statusIcon" class="fas fa-question-circle text-4xl text-gray-400 mb-3"></i>
+                            <h3 id="statusTitle" class="font-semibold text-white">Status</h3>
+                            <p id="statusDesc" class="text-sm text-gray-400">Awaiting analysis</p>
+                        </div>
+                        <div class="glass rounded-xl p-6 text-center glow-cyan">
+                            <i class="fas fa-tint text-4xl text-cyan-400 mb-3"></i>
+                            <h3 class="font-semibold text-white">Confidence</h3>
+                            <p id="confidenceValue" class="text-sm text-gray-400">--%</p>
+                        </div>
+                        <div class="glass rounded-xl p-6 text-center glow-purple">
+                            <i class="fas fa-clock text-4xl text-purple-400 mb-3"></i>
+                            <h3 class="font-semibold text-white">Analysis Time</h3>
+                            <p id="analysisTime" class="text-sm text-gray-400">--s</p>
+                        </div>
+                    </div>
+
+                    <!-- Detected Signs -->
+                    <div class="glass rounded-xl p-6 mb-8">
+                        <h3 class="font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-search text-orange-400 mr-2"></i>
+                            Detected Signs
+                        </h3>
+                        <div id="detectedSigns" class="grid md:grid-cols-2 gap-4">
+                            <div class="flex items-center space-x-3 glass rounded-lg p-3">
+                                <i class="fas fa-hand text-gray-400 text-xl"></i>
+                                <span class="text-sm text-gray-400">Awaiting analysis...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hydration & Fatigue Indicators -->
+                    <div class="grid md:grid-cols-2 gap-4 mb-8">
+                        <div class="glass rounded-xl p-6 glow-cyan">
+                            <h3 class="font-semibold text-white mb-3 flex items-center">
+                                <i class="fas fa-tint text-cyan-400 mr-2"></i>
+                                Hydration Level
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <span id="hydrationLevel" class="text-2xl font-bold gradient-text">--</span>
+                                <div class="w-32 bg-white/10 rounded-full h-3">
+                                    <div id="hydrationBar" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-3 rounded-full transition-all duration-1000 glow-cyan" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <p id="hydrationStatus" class="text-sm text-gray-400 mt-2">Awaiting analysis</p>
+                        </div>
+                        <div class="glass rounded-xl p-6 glow-purple">
+                            <h3 class="font-semibold text-white mb-3 flex items-center">
+                                <i class="fas fa-battery-quarter text-purple-400 mr-2"></i>
+                                Fatigue Indicator
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <span id="fatigueLevel" class="text-2xl font-bold gradient-text">--</span>
+                                <div class="w-32 bg-white/10 rounded-full h-3">
+                                    <div id="fatigueBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000 glow-purple" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <p id="fatigueStatus" class="text-sm text-gray-400 mt-2">Awaiting analysis</p>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Checkup Recommendation -->
+                    <div id="doctorRecommendation" class="hidden glass border-l-4 border-red-500 rounded-r-xl p-6 mb-8 glow">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-user-md text-red-400 text-2xl mt-1"></i>
+                            <div>
+                                <h3 class="font-semibold text-red-400">Doctor Checkup Recommended</h3>
+                                <p id="doctorMessage" class="text-sm text-gray-300 mt-1">Based on the analysis, we recommend consulting a healthcare professional.</p>
+                                <button class="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-calendar-check mr-2"></i>Find a Doctor
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="glass rounded-xl p-6">
+                        <h3 class="font-semibold text-white mb-4 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                            Health Recommendations
+                        </h3>
+                        <ul id="recommendations" class="space-y-2 text-sm text-gray-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-400 mr-2 mt-1"></i>
+                                <span>Upload a hand photo to receive personalized recommendations</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="glass rounded-2xl card-shadow p-8 mt-8">
+                <h2 class="text-xl font-semibold mb-6 flex items-center text-white">
+                    <i class="fas fa-info-circle text-cyan-400 mr-3"></i>
+                    How It Works
+                </h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 gradient-bg-cyan rounded-full flex items-center justify-center mx-auto mb-4 glow-cyan float">
+                            <i class="fas fa-upload text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2 text-white">1. Upload Photo</h3>
+                        <p class="text-sm text-gray-400">Take a clear photo of your palm or hand in good lighting</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 gradient-bg-purple rounded-full flex items-center justify-center mx-auto mb-4 glow-purple float-delay">
+                            <i class="fas fa-brain text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2 text-white">2. AI Analysis</h3>
+                        <p class="text-sm text-gray-400">Our AI analyzes skin tone, nail bed color, and other indicators</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4 glow float">
+                            <i class="fas fa-heartbeat text-2xl text-white"></i>
+                        </div>
+                        <h3 class="font-semibold mb-2 text-white">3. Get Estimates</h3>
+                        <p class="text-sm text-gray-400">Receive hemoglobin estimates and health recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Notes -->
+            <div class="glass border border-red-500/30 rounded-xl p-6 mt-8">
+                <h3 class="font-semibold text-red-400 mb-3 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Important Notes
+                </h3>
+                <ul class="text-sm text-gray-300 space-y-2">
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right mr-2 mt-1 text-red-400"></i>
+                        <span>This is an estimation tool, not a diagnostic device</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right mr-2 mt-1 text-red-400"></i>
+                        <span>Results may vary based on lighting, photo quality, and individual differences</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right mr-2 mt-1 text-red-400"></i>
+                        <span>Always consult a healthcare professional for accurate medical diagnosis</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right mr-2 mt-1 text-red-400"></i>
+                        <span>Do not use this tool for emergency medical situations</span>
+                    </li>
+                </ul>
+            </div>
+            </div>
+
+            <!-- Health Tips Page -->
+            <div id="health-tips-page" class="hidden">
+                <div class="glass rounded-2xl card-shadow p-8 mb-8">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center text-white">
+                        <i class="fas fa-heart text-cyan-400 mr-3"></i>
+                        Health Tips for Hemoglobin
+                    </h2>
+                    <p class="text-gray-300 mb-8">Essential tips to maintain healthy hemoglobin levels and overall well-being.</p>
+
+                    <!-- Low Hemoglobin Alert -->
+                    <div class="bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl p-6 mb-8 text-white">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-white/20 rounded-full p-3">
+                                <i class="fas fa-exclamation-circle text-3xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Low Hemoglobin? Start Here</h3>
+                                <p class="text-sm opacity-90 mb-4">If you have low hemoglobin, focus on these key foods and lifestyle changes immediately.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">🥬 Spinach</span>
+                                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">🍠 Beetroot</span>
+                                    <span class="bg-white/20 px-3 py-1 rounded-full text-sm">🫐 Pomegranate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Super Foods for Low Hemoglobin -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-red-600">
+                            <i class="fas fa-star mr-2"></i>
+                            Super Foods for Low Hemoglobin
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-6 border-2 border-green-300 shadow-md">
+                                <div class="text-5xl mb-3">🥬</div>
+                                <h4 class="font-bold text-gray-800 text-lg">Spinach</h4>
+                                <p class="text-sm text-gray-600 mt-2 mb-3">Rich in iron and folate</p>
+                                <div class="bg-white rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 font-medium">How to eat:</p>
+                                    <p class="text-xs text-gray-600">Raw in salads, cooked in curries, or as smoothies with vitamin C fruits</p>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl p-6 border-2 border-rose-300 shadow-md">
+                                <div class="text-5xl mb-3">🍠</div>
+                                <h4 class="font-bold text-gray-800 text-lg">Beetroot</h4>
+                                <p class="text-sm text-gray-600 mt-2 mb-3">Boosts red blood cell production</p>
+                                <div class="bg-white rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 font-medium">How to eat:</p>
+                                    <p class="text-xs text-gray-600">Raw juice, roasted, or in salads with lemon dressing</p>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-br from-red-100 to-orange-100 rounded-xl p-6 border-2 border-red-300 shadow-md">
+                                <div class="text-5xl mb-3">🫐</div>
+                                <h4 class="font-bold text-gray-800 text-lg">Pomegranate</h4>
+                                <p class="text-sm text-gray-600 mt-2 mb-3">Increases hemoglobin naturally</p>
+                                <div class="bg-white rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 font-medium">How to eat:</p>
+                                    <p class="text-xs text-gray-600">Fresh seeds, juice, or in fruit salads</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Water Intake Guide -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                            <i class="fas fa-tint mr-2"></i>
+                            Water Intake Guide for Low Hemoglobin
+                        </h3>
+                        <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Daily Water Goals</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between bg-white rounded-lg p-3">
+                                            <span class="text-sm text-gray-700">Morning (6 AM - 12 PM)</span>
+                                            <span class="font-bold text-blue-600">1.5L</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white rounded-lg p-3">
+                                            <span class="text-sm text-gray-700">Afternoon (12 PM - 6 PM)</span>
+                                            <span class="font-bold text-blue-600">1.5L</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white rounded-lg p-3">
+                                            <span class="text-sm text-gray-700">Evening (6 PM - 10 PM)</span>
+                                            <span class="font-bold text-blue-600">1L</span>
+                                        </div>
+                                        <div class="bg-blue-100 rounded-lg p-3 text-center">
+                                            <span class="text-lg font-bold text-blue-700">Total: 4L Daily</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Hydration Tips</h4>
+                                    <ul class="space-y-2 text-sm text-gray-600">
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                            <span>Drink warm water in the morning</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                            <span>Add lemon to water for vitamin C</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                            <span>Coconut water is excellent for hydration</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                            <span>Avoid caffeine, it dehydrates</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                                            <span>Set reminders to drink water regularly</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sleep Advice -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-indigo-600">
+                            <i class="fas fa-moon mr-2"></i>
+                            Sleep Advice for Hemoglobin Recovery
+                        </h3>
+                        <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-200">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Sleep Schedule</h4>
+                                    <div class="space-y-3">
+                                        <div class="bg-white rounded-lg p-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="font-medium text-gray-700">Bedtime</span>
+                                                <span class="text-indigo-600 font-bold">10:00 PM</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-medium text-gray-700">Wake up</span>
+                                                <span class="text-indigo-600 font-bold">6:00 AM</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-indigo-100 rounded-lg p-3 text-center">
+                                            <span class="text-lg font-bold text-indigo-700">8 Hours Quality Sleep</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Sleep Tips</h4>
+                                    <ul class="space-y-2 text-sm text-gray-600">
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+                                            <span>Maintain consistent sleep schedule</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+                                            <span>Dark, cool room for better sleep</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+                                            <span>Avoid screens 1 hour before bed</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+                                            <span>Light dinner 2-3 hours before sleep</span>
+                                        </li>
+                                        <li class="flex items-start space-x-2">
+                                            <i class="fas fa-check-circle text-indigo-500 mt-1"></i>
+                                            <span>Practice relaxation techniques</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Iron-Rich Foods -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-teal-600">
+                            <i class="fas fa-drumstick-bite mr-2"></i>
+                            Iron-Rich Foods
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-5 border border-red-100">
+                                <div class="text-3xl mb-2">🥩</div>
+                                <h4 class="font-semibold text-gray-800">Red Meat</h4>
+                                <p class="text-sm text-gray-600 mt-1"> chicken, lamb, pork - high heme iron</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100">
+                                <div class="text-3xl mb-2">🥬</div>
+                                <h4 class="font-semibold text-gray-800">Leafy Greens</h4>
+                                <p class="text-sm text-gray-600 mt-1">Spinach, kale, Swiss chard</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-5 border border-amber-100">
+                                <div class="text-3xl mb-2">🫘</div>
+                                <h4 class="font-semibold text-gray-800">Legumes</h4>
+                                <p class="text-sm text-gray-600 mt-1">Beans, lentils, chickpeas</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-5 border border-orange-100">
+                                <div class="text-3xl mb-2">🦐</div>
+                                <h4 class="font-semibold text-gray-800">Seafood</h4>
+                                <p class="text-sm text-gray-600 mt-1">Shrimp, tuna, sardines</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-5 border border-yellow-100">
+                                <div class="text-3xl mb-2">🥚</div>
+                                <h4 class="font-semibold text-gray-800">Eggs</h4>
+                                <p class="text-sm text-gray-600 mt-1">Especially egg yolks</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100">
+                                <div class="text-3xl mb-2">🍫</div>
+                                <h4 class="font-semibold text-gray-800">Dark Chocolate</h4>
+                                <p class="text-sm text-gray-600 mt-1">70% cocoa or higher</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vitamin C for Iron Absorption -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-orange-600">
+                            <i class="fas fa-lemon mr-2"></i>
+                            Vitamin C for Iron Absorption
+                        </h3>
+                        <div class="bg-orange-50 rounded-xl p-6 border border-orange-200">
+                            <p class="text-gray-700 mb-4">Vitamin C helps your body absorb iron better. Pair iron-rich foods with these:</p>
+                            <div class="grid md:grid-cols-4 gap-3">
+                                <div class="flex items-center space-x-2 bg-white rounded-lg p-3">
+                                    <span class="text-2xl">🍊</span>
+                                    <span class="text-sm font-medium">Oranges</span>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-white rounded-lg p-3">
+                                    <span class="text-2xl">🍋</span>
+                                    <span class="text-sm font-medium">Lemons</span>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-white rounded-lg p-3">
+                                    <span class="text-2xl">🫐</span>
+                                    <span class="text-sm font-medium">Berries</span>
+                                </div>
+                                <div class="flex items-center space-x-2 bg-white rounded-lg p-3">
+                                    <span class="text-2xl">🫑</span>
+                                    <span class="text-sm font-medium">Bell Peppers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifestyle Tips -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-blue-600">
+                            <i class="fas fa-running mr-2"></i>
+                            Lifestyle Tips
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-blue-100 rounded-full p-2">
+                                        <i class="fas fa-bed text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">Adequate Sleep</h4>
+                                        <p class="text-sm text-gray-600 mt-1">7-9 hours of quality sleep nightly</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-blue-100 rounded-full p-2">
+                                        <i class="fas fa-tint text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">Stay Hydrated</h4>
+                                        <p class="text-sm text-gray-600 mt-1">8-10 glasses of water daily</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-blue-100 rounded-full p-2">
+                                        <i class="fas fa-dumbbell text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">Regular Exercise</h4>
+                                        <p class="text-sm text-gray-600 mt-1">30 minutes of moderate activity</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-blue-100 rounded-full p-2">
+                                        <i class="fas fa-spa text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">Stress Management</h4>
+                                        <p class="text-sm text-gray-600 mt-1">Meditation, yoga, deep breathing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Foods to Avoid -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-red-600">
+                            <i class="fas fa-ban mr-2"></i>
+                            Foods That May Reduce Iron Absorption
+                        </h3>
+                        <div class="bg-red-50 rounded-xl p-6 border border-red-200">
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-coffee text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">Excessive coffee/tea</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-wine-bottle text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">Alcohol</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-candy-cane text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">High sugar foods</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-cheese text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">Excessive dairy</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-cookie text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">Processed foods</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-pills text-red-500 text-xl"></i>
+                                    <span class="text-sm text-gray-700">Antacids (with meals)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Signs -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center text-amber-600">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            When to See a Doctor
+                        </h3>
+                        <div class="bg-amber-50 rounded-xl p-6 border border-amber-200">
+                            <ul class="space-y-3 text-sm text-gray-700">
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Persistent fatigue or weakness</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Shortness of breath or chest pain</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Pale skin or yellowing of skin/eyes</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Irregular heartbeat or rapid pulse</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Dizziness or frequent headaches</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-amber-500 mt-1"></i>
+                                    <span>Cold hands and feet</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Quick Tips Card -->
+                    <div class="bg-gradient-to-r from-teal-600 to-emerald-600 rounded-2xl p-8 text-white">
+                        <h3 class="text-xl font-bold mb-4 flex items-center">
+                            <i class="fas fa-lightbulb mr-3"></i>
+                            Quick Daily Tips
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white/20 rounded-lg p-4 backdrop-blur">
+                                <p class="font-medium">🌅 Morning</p>
+                                <p class="text-sm opacity-90 mt-1">Start with iron-fortified cereal or eggs</p>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-4 backdrop-blur">
+                                <p class="font-medium">🥗 Lunch</p>
+                                <p class="text-sm opacity-90 mt-1">Include spinach salad with citrus dressing</p>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-4 backdrop-blur">
+                                <p class="font-medium">🍽️ Dinner</p>
+                                <p class="text-sm opacity-90 mt-1">Lean protein with vitamin C-rich veggies</p>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-4 backdrop-blur">
+                                <p class="font-medium">🥤 Snacks</p>
+                                <p class="text-sm opacity-90 mt-1">Nuts, seeds, or dark chocolate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm">© 2024 Hemoglobin Estimator - AI-Powered Health Assessment Tool</p>
+            <p class="text-gray-500 text-xs mt-2">For educational and informational purposes only</p>
+        </div>
+    </footer>
+
+    <script>
+        let uploadedImage = null;
+
+        // Page Navigation
+        function showPage(page) {
+            const homePage = document.getElementById('home-page');
+            const healthTipsPage = document.getElementById('health-tips-page');
+            const navButtons = document.querySelectorAll('.nav-btn');
+
+            // Hide all pages
+            homePage.classList.add('hidden');
+            healthTipsPage.classList.add('hidden');
+
+            // Show selected page
+            if (page === 'home') {
+                homePage.classList.remove('hidden');
+            } else if (page === 'health-tips') {
+                healthTipsPage.classList.remove('hidden');
+            }
+
+            // Update navigation button styles
+            navButtons.forEach(btn => {
+                if (btn.dataset.page === page) {
+                    btn.classList.add('bg-white/30');
+                } else {
+                    btn.classList.remove('bg-white/30');
+                }
+            });
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize home page as active
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('home');
+        });
+
+        // File Upload Handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-teal-500', 'bg-teal-50');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-teal-500', 'bg-teal-50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-teal-500', 'bg-teal-50');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                document.getElementById('imagePreview').src = uploadedImage;
+                document.getElementById('previewSection').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function capturePhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleImageUpload(file);
+                }
+            };
+            input.click();
+        }
+
+        function clearImage() {
+            uploadedImage = null;
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('previewSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            fileInput.value = '';
+        }
+
+        async function analyzeImage() {
+            if (!uploadedImage) return;
+
+            const startTime = Date.now();
+            
+            // Show loading state
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.classList.remove('hidden');
+            resultsSection.innerHTML = `
+                <div class="bg-white rounded-2xl card-shadow p-8 text-center">
+                    <div class="pulse-animation">
+                        <i class="fas fa-spinner fa-spin text-6xl text-teal-600 mb-4"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium">Analyzing your hand photo...</p>
+                    <p class="text-sm text-gray-400 mt-2">This may take a few seconds</p>
+                </div>
+            `;
+
+            try {
+                // Call Flask backend API
+                const response = await fetch('http://localhost:5000/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: uploadedImage })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const { hb_value, confidence, status, status_color, detected_signs, 
+                        hydration_level, hydration_status, hydration_bar,
+                        fatigue_level, fatigue_status, fatigue_bar,
+                        recommend_doctor, doctor_message, recommendations, analysis_time } = data;
+
+                // Calculate bar width (10-18 g/dL range)
+                const barWidth = ((hb_value - 10) / 8) * 100;
+
+                // Status icon mapping
+                const statusIcons = {
+                    'Low': 'fa-exclamation-circle',
+                    'High': 'fa-exclamation-triangle',
+                    'Normal': 'fa-check-circle'
+                };
+
+                // Generate detected signs HTML
+                const detectedSignsHTML = detected_signs.map(sign => `
+                    <div class="flex items-center space-x-3 bg-white rounded-lg p-3 ${sign.detected ? 'border-l-4 border-orange-400' : 'opacity-50'}">
+                        <i class="fas ${sign.icon} ${sign.detected ? 'text-orange-500' : 'text-gray-400'} text-xl"></i>
+                        <span class="text-sm ${sign.detected ? 'text-gray-700 font-medium' : 'text-gray-400'}">${sign.label}</span>
+                        ${sign.detected ? '<i class="fas fa-check-circle text-green-500 ml-auto"></i>' : '<i class="fas fa-times-circle text-gray-300 ml-auto"></i>'}
+                    </div>
+                `).join('');
+
+                // Update results
+                resultsSection.innerHTML = `
+                    <div class="bg-white rounded-2xl card-shadow p-8">
+                        <h2 class="text-xl font-semibold mb-6 flex items-center">
+                            <i class="fas fa-chart-line text-teal-600 mr-3"></i>
+                            Analysis Results
+                        </h2>
+
+                        <!-- Hemoglobin Level -->
+                        <div class="mb-8">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700 font-medium">Estimated Hemoglobin Level</span>
+                                <span class="text-3xl font-bold text-teal-600">${hb_value} g/dL</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-4 rounded-full transition-all duration-1000" style="width: ${barWidth}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>Low (10)</span>
+                                <span>Normal (12-16)</span>
+                                <span>High (18+)</span>
+                            </div>
+                        </div>
+
+                        <!-- Health Status -->
+                        <div class="grid md:grid-cols-3 gap-4 mb-8">
+                            <div class="bg-${status_color}-50 rounded-xl p-6 text-center">
+                                <i class="fas ${statusIcons[status]} text-4xl text-${status_color}-500 mb-3"></i>
+                                <h3 class="font-semibold text-gray-700">${status}</h3>
+                                <p class="text-sm text-gray-500">${status === 'Low' ? 'Below normal range' : status === 'High' ? 'Above normal range' : 'Within healthy range'}</p>
+                            </div>
+                            <div class="bg-blue-50 rounded-xl p-6 text-center">
+                                <i class="fas fa-tint text-4xl text-blue-500 mb-3"></i>
+                                <h3 class="font-semibold text-gray-700">Confidence</h3>
+                                <p class="text-sm text-gray-500">${confidence}%</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-xl p-6 text-center">
+                                <i class="fas fa-clock text-4xl text-purple-500 mb-3"></i>
+                                <h3 class="font-semibold text-gray-700">Analysis Time</h3>
+                                <p class="text-sm text-gray-500">${analysis_time}s</p>
+                            </div>
+                        </div>
+
+                        <!-- Detected Signs -->
+                        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-6 mb-8">
+                            <h3 class="font-semibold text-gray-700 mb-4 flex items-center">
+                                <i class="fas fa-search text-orange-500 mr-2"></i>
+                                Detected Signs
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                ${detectedSignsHTML}
+                            </div>
+                        </div>
+
+                        <!-- Hydration & Fatigue Indicators -->
+                        <div class="grid md:grid-cols-2 gap-4 mb-8">
+                            <div class="bg-cyan-50 rounded-xl p-6">
+                                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-tint text-cyan-500 mr-2"></i>
+                                    Hydration Level
+                                </h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-2xl font-bold text-cyan-600">${hydration_level}</span>
+                                    <div class="w-32 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-cyan-500 h-3 rounded-full transition-all duration-1000" style="width: ${hydration_bar}%"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">${hydration_status}</p>
+                            </div>
+                            <div class="bg-amber-50 rounded-xl p-6">
+                                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                                    <i class="fas fa-battery-quarter text-amber-500 mr-2"></i>
+                                    Fatigue Indicator
+                                </h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-2xl font-bold text-amber-600">${fatigue_level}</span>
+                                    <div class="w-32 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-amber-500 h-3 rounded-full transition-all duration-1000" style="width: ${fatigue_bar}%"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">${fatigue_status}</p>
+                            </div>
+                        </div>
+
+                        <!-- Doctor Checkup Recommendation -->
+                        ${recommend_doctor ? `
+                        <div class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-6 mb-8">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-user-md text-red-500 text-2xl mt-1"></i>
+                                <div>
+                                    <h3 class="font-semibold text-red-800">Doctor Checkup Recommended</h3>
+                                    <p class="text-sm text-red-700 mt-1">${doctor_message}</p>
+                                    <button class="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors">
+                                        <i class="fas fa-calendar-check mr-2"></i>Find a Doctor
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- Recommendations -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="font-semibold text-gray-700 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                Health Recommendations
+                            </h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                ${recommendations.map(rec => `
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+                                        <span>${rec}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                resultsSection.innerHTML = `
+                    <div class="bg-white rounded-2xl card-shadow p-8 text-center">
+                        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                        <p class="text-gray-600 font-medium">Analysis Failed</p>
+                        <p class="text-sm text-gray-400 mt-2">${error.message}</p>
+                        <p class="text-xs text-gray-400 mt-4">Make sure the Flask backend is running on port 5000</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
