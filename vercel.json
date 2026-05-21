@@ -8,7 +8,6 @@
   "routes": [
     {
       "src": "/api/analyze",
-      "methods": ["POST"],
       "dest": "/api/analyze.py"
     },
     {

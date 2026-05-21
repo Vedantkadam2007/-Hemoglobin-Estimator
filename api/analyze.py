@@ -8,8 +8,11 @@ from PIL import Image
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 def analyze_image():
+    if request.method == 'GET':
+        return jsonify({'message': 'Hemoglobin Estimator API is active'}), 200
+
     try:
         data = request.json
         image_data = data.get('image')
