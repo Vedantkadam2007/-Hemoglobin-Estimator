@@ -1,69 +1,51 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
 import io
 import numpy as np
 from PIL import Image
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/')
-def serve_html():
-    return send_from_directory(os.path.join(os.path.dirname(__file__), '..'), 'index.html')
-
-@app.route('/analyze', methods=['POST'])
+@app.route('/api/analyze', methods=['POST'])
 def analyze_image():
     try:
         data = request.json
         image_data = data.get('image')
-        
+
         if not image_data:
             return jsonify({'error': 'No image provided'}), 400
-        
-        # Decode base64 image
+
         image_data = image_data.split(',')[1]
         image_bytes = base64.b64decode(image_data)
         image = Image.open(io.BytesIO(image_bytes))
-        
-        # Convert to numpy array for processing
         img_array = np.array(image)
-        
-        # Extract color features from image
+
         if len(img_array.shape) == 3:
-            # Get average RGB values
             avg_color = np.mean(img_array, axis=(0, 1))
             r, g, b = avg_color[0], avg_color[1], avg_color[2]
-            
-            # Calculate skin tone indicators
             brightness = np.mean(avg_color)
             red_ratio = r / (r + g + b) if (r + g + b) > 0 else 0
         else:
             brightness = 128
             red_ratio = 0.33
-        
-        # Hemoglobin estimation based on image analysis
+
         base_hb = 12.0
-        
-        # Color analysis: higher red ratio and brightness may indicate better circulation
         color_factor = (red_ratio - 0.33) * 8
         brightness_factor = (brightness - 128) / 255 * 1.5
-        
-        # Calculate hemoglobin based on image features
+
         hb_value = base_hb + color_factor + brightness_factor
-        hb_value = max(8.0, min(18.0, hb_value))  # Clamp to realistic range
+        hb_value = max(8.0, min(18.0, hb_value))
         hb_value = round(hb_value, 1)
-        
-        # Confidence based on image quality (brightness range)
+
         if 100 <= brightness <= 180:
-            confidence = 85  # Good lighting
+            confidence = 85
         elif 80 <= brightness <= 200:
-            confidence = 75  # Acceptable lighting
+            confidence = 75
         else:
-            confidence = 65  # Poor lighting
-        
-        # Determine status and detected signs
+            confidence = 65
+
         if hb_value < 12:
             status = 'Low'
             status_color = 'red'
@@ -145,7 +127,7 @@ def analyze_image():
                 'Include iron-rich foods in diet',
                 'Consider periodic blood tests'
             ]
-        
+
         return jsonify({
             'hb_value': float(hb_value),
             'confidence': int(confidence),
@@ -163,13 +145,5 @@ def analyze_image():
             'recommendations': recommendations,
             'analysis_time': float(round(2.0 + (abs(brightness - 128) / 255), 2))
         })
-        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# Vercel serverless function handler
-from flask import Flask as FlaskApp
-app.wsgi = app
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
