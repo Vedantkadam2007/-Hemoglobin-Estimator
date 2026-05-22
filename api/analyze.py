@@ -6,6 +6,7 @@ import io
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/api/analyze', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def analyze_image():
     if request.method == 'GET':
@@ -156,3 +157,7 @@ def analyze_image():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
