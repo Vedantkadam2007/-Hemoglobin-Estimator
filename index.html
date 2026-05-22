@@ -950,7 +950,32 @@
             return Math.min(Math.max(value, min), max);
         }
 
+        function showAnalysisLoader(message) {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.classList.remove('hidden');
+            let loader = document.getElementById('analysisLoader');
+            if (!loader) {
+                loader = document.createElement('div');
+                loader.id = 'analysisLoader';
+                loader.className = 'bg-white rounded-2xl card-shadow p-8 text-center';
+                resultsSection.prepend(loader);
+            }
+            loader.innerHTML = `
+                <div class="pulse-animation">
+                    <i class="fas fa-spinner fa-spin text-6xl text-teal-600 mb-4"></i>
+                </div>
+                <p class="text-gray-600 font-medium">Analyzing your hand photo...</p>
+                <p class="text-sm text-gray-400 mt-2">${message}</p>
+            `;
+        }
+
+        function hideAnalysisLoader() {
+            const loader = document.getElementById('analysisLoader');
+            if (loader) loader.remove();
+        }
+
         function renderResults(data, fallbackMessage = '') {
+            hideAnalysisLoader();
             const resultsSection = document.getElementById('resultsSection');
             resultsSection.classList.remove('hidden');
 
@@ -1130,17 +1155,7 @@
 
         async function analyzeImage() {
             if (!uploadedImage) return;
-            const resultsSection = document.getElementById('resultsSection');
-            resultsSection.classList.remove('hidden');
-            resultsSection.innerHTML = `
-                <div class="bg-white rounded-2xl card-shadow p-8 text-center">
-                    <div class="pulse-animation">
-                        <i class="fas fa-spinner fa-spin text-6xl text-teal-600 mb-4"></i>
-                    </div>
-                    <p class="text-gray-600 font-medium">Analyzing your hand photo...</p>
-                    <p class="text-sm text-gray-400 mt-2">Attempting remote analysis first...</p>
-                </div>
-            `;
+            showAnalysisLoader('Attempting remote analysis first...');
 
             try {
                 const response = await fetch(apiBase + '/api/analyze', {
@@ -1172,6 +1187,8 @@
                     const fallback = await analyzeImageLocally(uploadedImage);
                     renderResults(fallback, 'Remote API unavailable — using client-side fallback analysis.');
                 } catch (fallbackError) {
+                    hideAnalysisLoader();
+                    const resultsSection = document.getElementById('resultsSection');
                     resultsSection.innerHTML = `
                         <div class="bg-white rounded-2xl card-shadow p-8 text-center">
                             <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
