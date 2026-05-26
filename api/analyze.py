@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import base64
 import io
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 CORS(app)
@@ -21,15 +24,36 @@ def analyze_image():
         except Exception as imp_err:
             return jsonify({'error': f'Dependency import failed: {str(imp_err)}'}), 500
 
-        data = request.json
-        image_data = data.get('image')
+        # Support JSON (data URI) or multipart/form-data file uploads
+        image = None
+        image_bytes = None
+        if request.files:
+            file = request.files.get('image') or request.files.get('file')
+            if file:
+                logging.info('Received multipart file upload')
+                image_bytes = file.read()
+        if image_bytes is None:
+            data = request.get_json(silent=True)
+            if data:
+                image_data = data.get('image')
+                if image_data:
+                    # handle data URI or plain base64
+                    if ',' in image_data:
+                        image_data = image_data.split(',')[1]
+                    try:
+                        image_bytes = base64.b64decode(image_data)
+                    except Exception as e:
+                        logging.info('Base64 decode failed: %s', e)
+                        return jsonify({'error': 'Invalid base64 image data'}), 400
 
-        if not image_data:
+        if not image_bytes:
             return jsonify({'error': 'No image provided'}), 400
 
-        image_data = image_data.split(',')[1]
-        image_bytes = base64.b64decode(image_data)
-        image = Image.open(io.BytesIO(image_bytes))
+        try:
+            image = Image.open(io.BytesIO(image_bytes))
+        except Exception as e:
+            logging.info('Image open failed: %s', e)
+            return jsonify({'error': 'Unable to open image'}), 400
         img_array = np.array(image)
 
         if len(img_array.shape) == 3:
